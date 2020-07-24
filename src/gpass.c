@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#define MAXLEN 64
 
-static char charset[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t',
+
+static const char charset[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t',
 	'u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P',
 	'Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9'};
 
@@ -12,37 +14,35 @@ static char charset[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n'
 int main() {
 
 	void *ptr;
-	int *rand_stream_int;
-	int index_array[64];
+	char *rand_stream;
+	int index_array[MAXLEN];
 	int i = 0;
 
-	ptr = malloc(33 * sizeof(size_t));
+	ptr = malloc(256 * sizeof(char));
 
-	size_t size=256;
-	int res = getentropy(ptr, size);
+	int res = getentropy(ptr, 256);
 
 	if (res!=0) {
 		puts("getentropy failed.");
 		exit(1);
 	}
 
-	rand_stream_int = (int *) ptr;
+	rand_stream = (char *) ptr;
 
-	for(i=0 ; i < 64 ; i++) {
-		index_array[i] = abs(rand_stream_int[i]) % 62;
-	}
+
+	for(i=0 ; i < MAXLEN ; i++)
+		*(index_array + i) = abs(*(rand_stream + i)) % 62;
+
 
 	printf("username: ");
 
-	for(i=0 ; i < 10 ; i++) {
+	for(i=0 ; i < 10 ; i++)
 		printf("%c", charset[index_array[i]]);
-	}
 
 	printf("\npassword: ");
 
-	for(i=10 ; i < 50 ; i++) {
+	for(i=10 ; i < 50 ; i++)
 		printf("%c", charset[index_array[i]]);
-	}
 
 	printf("\n");
 
