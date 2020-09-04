@@ -1,53 +1,101 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 #define MAXLEN 64
-#define STR_CHARSET_LEN 62
-#define SPC_CHARSET_LEN 87
+#define ALPHAS_NUMBERS_LEN 62
+#define ALPHAS_NUMBERS_SPECIALS_LEN 87
+#define ALPHAS_LEN 52
+#define NUMBERS_LEN 10
 
 
-static char standard_charset[STR_CHARSET_LEN] = {'a','b','c','d','e','f','g','h','i',
+static char alphas_numbers[ALPHAS_NUMBERS_LEN] = {'a','b','c','d','e','f','g','h','i',
 	'j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E',
 	'F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0',
 	'1','2','3','4','5','6','7','8','9'};
 
-static char special_charset[SPC_CHARSET_LEN] = {'a','b','c','d','e','f','g','h','i','j',
+static char alphas_numbers_specials[ALPHAS_NUMBERS_SPECIALS_LEN] = {'a','b','c','d','e','f','g','h','i','j',
 	'k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F',
 	'G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1',
 	'2','3','4','5','6','7','8','9','~','`','!','@','#','$','%','^','&','*','(',')','_','-',
 	'=','+','[',']','{','}',':',';','?','<','>'};
 
+static char alphas[ALPHAS_LEN] = {'a','b','c','d','e','f','g','h','i',
+	'j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E',
+	'F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
+
+static char numbers[NUMBERS_LEN] = {'0','1','2','3','4','5','6','7','8','9'};
 
 int main(int argc, char *argv[]) {
 
 	void *ptr;
 	char *rand_stream;
 	char *charset;
+	char *input_len;
 	int index_array[MAXLEN];
 	int charset_len;
+	int username_password_format = 0;
+	int password_len = 0;
+	int lflag = 0;
 	int i = 0;
 
 	int opt;
-	enum { STANDARD_CHARS, SPECIAL_CHARS, } mode = STANDARD_CHARS;
+	enum {
+		ALPHAS,
+		ALPHAS_NUMBERS,
+		ALPHAS_NUMBERS_SPECIALS,
+		NUMBERS
+	} mode = ALPHAS_NUMBERS;
 
-	while ((opt = getopt(argc, argv, "s")) != -1) {
+	while ((opt = getopt(argc, argv, "maunsl:")) != -1) {
 	    switch (opt) {
-	    case 's': mode = SPECIAL_CHARS; break;
-	    default:
-	        fprintf(stderr, "Usage: %s [-s]\n", argv[0]);
+	    case 'a': mode = ALPHAS; break;
+	    case 'm': mode = ALPHAS_NUMBERS; break;
+	    case 's': mode = ALPHAS_NUMBERS_SPECIALS; break;
+	    case 'n': mode = NUMBERS; break;
+	    case 'u': username_password_format = 1; break;
+	    case 'l': lflag = 1; input_len = optarg; break;
+	    case '?': 
+		    if (optopt == 'l')
+				fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+			else if (isprint (optopt)) {
+				fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+				fprintf(stderr, "Usage: %s [-OPTION]\n-a\tAlphabets\n-m\tAlphabets and numbers\n\
+-s\tAlphabets and numbers and special chars\n-n\tNumbers\n", argv[0]);
+			} else
+				fprintf (stderr,"Unknown option character `\\x%x'.\n",optopt);
+			return 1;
+		default:
 	        exit(EXIT_FAILURE);
 	    }
 	}
+	if (lflag) {
+		password_len = atoi(input_len);
+		if (password_len > MAXLEN)
+			exit(EXIT_FAILURE);
+	} else
+		password_len = 40;
+
+	printf("password_len: %d\n", password_len);
+
 
 	switch (mode) {
-		case STANDARD_CHARS:
-			charset = standard_charset;
-			charset_len = STR_CHARSET_LEN;
+		case ALPHAS:
+			charset = alphas;
+			charset_len = ALPHAS_LEN;
 			break;
-		case SPECIAL_CHARS:
-			charset = special_charset;
-			charset_len = SPC_CHARSET_LEN;
+		case ALPHAS_NUMBERS_SPECIALS:
+			charset = alphas_numbers_specials;
+			charset_len = ALPHAS_NUMBERS_SPECIALS_LEN;
+			break;
+		case ALPHAS_NUMBERS:
+			charset = alphas_numbers;
+			charset_len = ALPHAS_NUMBERS_LEN;
+			break;
+		case NUMBERS:
+			charset = numbers;
+			charset_len = NUMBERS_LEN;
 			break;
 	}
 
@@ -67,16 +115,21 @@ int main(int argc, char *argv[]) {
 	for(i=0 ; i < MAXLEN ; i++)
 		*(index_array + i) = abs(*(rand_stream + i)) % charset_len;
 
+	if (username_password_format) {
+		printf("username: ");
 
-	printf("username: ");
+		for(i=0 ; i < 10 ; i++)
+			printf("%c", charset[index_array[i]]);
 
-	for(i=0 ; i < 10 ; i++)
-		printf("%c", charset[index_array[i]]);
+		printf("\npassword: ");
 
-	printf("\npassword: ");
-
-	for(i=10 ; i < 50 ; i++)
-		printf("%c", charset[index_array[i]]);
+		for(i=10 ; i < password_len + 10 ; i++)
+			printf("%c", charset[index_array[i]]);
+	} else {
+		for(i=0 ; i < password_len ; i++)
+			printf("%c", charset[index_array[i]]);
+	}
+	
 
 	printf("\n");
 
