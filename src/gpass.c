@@ -63,7 +63,8 @@ int main(int argc, char *argv[]) {
 			else if (isprint (optopt)) {
 				fprintf (stderr, "Unknown option `-%c'.\n", optopt);
 				fprintf(stderr, "Usage: %s [-OPTION]\n-a\tAlphabets\n-m\tAlphabets and numbers\n\
--s\tAlphabets and numbers and special chars\n-n\tNumbers\n", argv[0]);
+-s\tAlphabets and numbers and special chars\n-n\tNumbers\n-u\tUsername and password format\n\
+-l <length>\tPassword length\n", argv[0]);
 			} else
 				fprintf (stderr,"Unknown option character `\\x%x'.\n",optopt);
 			return 1;
