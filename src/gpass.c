@@ -77,9 +77,6 @@ int main(int argc, char *argv[]) {
 	} else
 		password_len = 40;
 
-	printf("password_len: %d\n", password_len);
-
-
 	switch (mode) {
 		case ALPHAS:
 			charset = alphas;
