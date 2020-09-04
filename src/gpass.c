@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
 	int index_array[MAXLEN];
 	int charset_len;
 	int username_password_format = 0;
+	int username_len = 10;
 	int password_len = 0;
 	int lflag = 0;
 	int i = 0;
@@ -72,8 +73,20 @@ int main(int argc, char *argv[]) {
 	}
 	if (lflag) {
 		password_len = atoi(input_len);
-		if (password_len > MAXLEN)
-			exit(EXIT_FAILURE);
+		if (username_password_format) {
+			if (password_len + username_len > MAXLEN) {
+				fprintf (stderr, "Max password length is %d, given username and password combined is %d\n",
+					MAXLEN, password_len + username_len);
+				exit(EXIT_FAILURE);
+			}
+		} else {
+			if (password_len > MAXLEN) {
+				fprintf (stderr, "Max password length is %d, password length given is %d\n",
+					MAXLEN, password_len);
+				exit(EXIT_FAILURE);
+			}
+		}
+		
 	} else
 		password_len = 40;
 
@@ -115,12 +128,12 @@ int main(int argc, char *argv[]) {
 	if (username_password_format) {
 		printf("username: ");
 
-		for(i=0 ; i < 10 ; i++)
+		for(i=0 ; i < username_len ; i++)
 			printf("%c", charset[index_array[i]]);
 
 		printf("\npassword: ");
 
-		for(i=10 ; i < password_len + 10 ; i++)
+		for(i=username_len ; i < password_len + username_len ; i++)
 			printf("%c", charset[index_array[i]]);
 	} else {
 		for(i=0 ; i < password_len ; i++)
