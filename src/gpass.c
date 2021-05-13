@@ -50,15 +50,15 @@ int main(int argc, char *argv[]) {
 	} mode = ALPHAS_NUMBERS;
 
 	while ((opt = getopt(argc, argv, "maunsl:")) != -1) {
-	    switch (opt) {
-	    case 'a': mode = ALPHAS; break;
-	    case 'm': mode = ALPHAS_NUMBERS; break;
-	    case 's': mode = ALPHAS_NUMBERS_SPECIALS; break;
-	    case 'n': mode = NUMBERS; break;
-	    case 'u': username_password_format = 1; break;
-	    case 'l': lflag = 1; input_len = optarg; break;
-	    case '?': 
-		    if (optopt == 'l')
+		switch (opt) {
+		case 'a': mode = ALPHAS; break;
+		case 'm': mode = ALPHAS_NUMBERS; break;
+		case 's': mode = ALPHAS_NUMBERS_SPECIALS; break;
+		case 'n': mode = NUMBERS; break;
+		case 'u': username_password_format = 1; break;
+		case 'l': lflag = 1; input_len = optarg; break;
+		case '?':
+			if (optopt == 'l')
 				fprintf (stderr, "Option -%c requires an argument.\n", optopt);
 			else if (isprint (optopt)) {
 				fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -69,8 +69,8 @@ int main(int argc, char *argv[]) {
 				fprintf (stderr,"Unknown option character `\\x%x'.\n",optopt);
 			return 1;
 		default:
-	        exit(EXIT_FAILURE);
-	    }
+			exit(EXIT_FAILURE);
+		}
 	}
 	if (lflag) {
 		password_len = atoi(input_len);
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 				exit(EXIT_FAILURE);
 			}
 		}
-		
+
 	} else
 		password_len = 40;
 
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
 		for(i=0 ; i < password_len ; i++)
 			printf("%c", charset[index_array[i]]);
 	}
-	
+
 
 	printf("\n");
 
